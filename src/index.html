@@ -1,32 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="styles.css" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus App</title>
-        <script type="module" src="/main.js" defer></script>
-    </head>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
-    <body>
-        <main class="container">
-            <h1>Welcome to PakePlus</h1>
-            <form class="row" id="greet-form">
-                <input id="inputValue" placeholder="Enter a something..." />
-            </form>
-            <div class="resultBox">
-                <span>result: </span>
-                <span id="result"></span>
-            </div>
-            <div class="invokeBox">
-                <button id="openUrl">open_url_browser</button>
-                <button id="openUrlNew">open_url_new</button>
-                <button id="runCommand">run_command</button>
-                <button id="downloadFile">download_file</button>
-                <button id="getExeDir">get_exe_dir</button>
-                <button id="getEnvVar">get_env_var</button>
-                <button id="findPort">find_port</button>
-            </div>
-        </main>
-    </body>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+    <div class="box">
+        <div id="page1" class="page open" style="--b:rgba(255,0,0,0.2)">
+
+        </div>
+        <div id="page2" class="page close" style="--b:rgba(0,102,255,0.2)">
+
+        </div>
+        <div id="page3" class="page close" style="--b:rgba(85,0,255,0.2)">
+
+        </div>
+        <div id="page4" class="page close" style="--b:rgba(85,255,0,0.2)">
+
+        </div>
+        <div id="nav">
+            <ul>
+                <li class="checked" style="--b:rgba(255,0,0,0.2)">
+                    <ion-icon name="home-outline"></ion-icon>
+                    <span>主页</span>
+                </li>
+                <li class="no-checked" style="--b:rgba(0,102,255,0.2)">
+                    <ion-icon name="chatbox-ellipses-outline"></ion-icon>
+                    <span>消息</span>
+                </li>
+                <li class="no-checked" style="--b:rgba(85,0,255,0.2)">
+                    <ion-icon name="extension-puzzle-outline"></ion-icon>
+                    <span>模块</span>
+                </li>
+                <li class="no-checked" style="--b:rgba(85,255,0,0.2)">
+                    <ion-icon name="settings-outline"></ion-icon>
+                    <span>设定</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        let lis = document.getElementById("nav").children[0].children;
+        for (let i = 0 ; i < lis.length ; i ++) {
+            lis[i].setAttribute("onclick","openPage(" + i + ")")
+        }
+
+        function openPage(index) {
+            for (let i = 0 ; i < lis.length ; i ++) {
+                if (lis[i] === lis[index]) {
+                    document.getElementById("page" + (i + 1)).classList.replace("close","open");
+                    lis[i].classList.replace("no-checked","checked");
+                } else {
+                    document.getElementById("page" + (i + 1)).classList.replace("open","close");
+                    lis[i].classList.replace("checked","no-checked");
+                }
+            }
+        }
+    </script>
+</body>
 </html>
