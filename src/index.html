@@ -1,32 +1,2105 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="styles.css" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus App</title>
-        <script type="module" src="/main.js" defer></script>
-    </head>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 11 模拟器 - 增强版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
 
-    <body>
-        <main class="container">
-            <h1>Welcome to PakePlus</h1>
-            <form class="row" id="greet-form">
-                <input id="inputValue" placeholder="Enter a something..." />
-            </form>
-            <div class="resultBox">
-                <span>result: </span>
-                <span id="result"></span>
+        body {
+            background: #000;
+            overflow: hidden;
+            height: 100vh;
+            user-select: none;
+        }
+
+        .desktop {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 48px);
+            background: linear-gradient(135deg, #0067c0 0%, #7e57c2 100%);
+            background-image: url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80');
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        .desktop-icons {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .desktop-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 70px;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: white;
+            text-align: center;
+        }
+
+        .desktop-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .desktop-icon.selected {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .desktop-icon i {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+
+        .desktop-icon span {
+            font-size: 12px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 48px;
+            background: rgba(30, 30, 30, 0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            z-index: 1000;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .start-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-radius: 5px;
+        }
+
+        .start-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .taskbar-icons {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+            gap: 5px;
+        }
+
+        .taskbar-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .taskbar-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .taskbar-icon.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .taskbar-icon.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .taskview-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+
+        .taskview-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .system-tray {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            color: white;
+            font-size: 12px;
+            gap: 10px;
+            padding-right: 10px;
+        }
+
+        .system-tray i {
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .system-tray i:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .time {
+            font-size: 12px;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .time:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 开始菜单样式 */
+        .start-menu {
+            position: fixed;
+            bottom: 48px;
+            left: 0;
+            width: 500px;
+            height: 600px;
+            background: rgba(42, 42, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 10px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 999;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s, opacity 0.3s;
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        .start-menu.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .start-menu-header {
+            padding: 40px 30px 20px;
+            color: white;
+        }
+
+        .start-menu-header h2 {
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .start-menu-search {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            color: white;
+            width: 100%;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .start-menu-search:focus {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .start-menu-apps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 20px 30px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .start-menu-app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: white;
+        }
+
+        .start-menu-app:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .start-menu-app i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .start-menu-app span {
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .start-menu-footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: rgba(30, 30, 30, 0.8);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            color: white;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-profile img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .power-options {
+            display: flex;
+            gap: 15px;
+            color: white;
+        }
+
+        .power-options i {
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .power-options i:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 窗口样式 */
+        .window {
+            position: absolute;
+            top: 50px;
+            left: 100px;
+            width: 700px;
+            height: 500px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 100;
+            resize: both;
+            min-width: 300px;
+            min-height: 200px;
+            transition: box-shadow 0.2s;
+        }
+
+        .window:hover {
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .window.maximized {
+            width: 100% !important;
+            height: calc(100vh - 48px) !important;
+            top: 0 !important;
+            left: 0 !important;
+            border-radius: 0;
+            resize: none;
+        }
+
+        .window-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: #f3f3f3;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: move;
+            user-select: none;
+        }
+
+        .window-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .window-title i {
+            font-size: 16px;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .window-control {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .window-control:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .window-control.close:hover {
+            background: #e81123;
+            color: white;
+        }
+
+        .window-content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow: auto;
+            background: white;
+        }
+
+        /* 文件资源管理器样式 */
+        .file-explorer {
+            display: flex;
+            height: 100%;
+        }
+
+        .sidebar {
+            width: 200px;
+            background: #f8f8f8;
+            border-right: 1px solid #e0e0e0;
+            padding: 15px 0;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background: #e8e8e8;
+        }
+
+        .sidebar-item.active {
+            background: #e1f5fe;
+        }
+
+        .file-content {
+            flex-grow: 1;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .file-item:hover {
+            background: #f0f0f0;
+        }
+
+        .file-item.selected {
+            background: #e1f5fe;
+        }
+
+        .file-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+            color: #4285f4;
+        }
+
+        .file-name {
+            font-size: 12px;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        /* 浏览器窗口样式 */
+        .browser-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .browser-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            gap: 10px;
+            background: #f3f3f3;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .browser-toolbar i {
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .browser-toolbar i:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .browser-address {
+            flex-grow: 1;
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .browser-address:focus {
+            border-color: #0078d4;
+        }
+
+        .browser-view {
+            flex-grow: 1;
+            padding: 20px;
+            background: white;
+            overflow: auto;
+        }
+
+        /* 设置窗口样式 */
+        .settings-content {
+            display: flex;
+            height: 100%;
+        }
+
+        .settings-sidebar {
+            width: 200px;
+            background: #f8f8f8;
+            border-right: 1px solid #e0e0e0;
+            padding: 15px 0;
+        }
+
+        .settings-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .settings-option:hover {
+            background: #e8e8e8;
+        }
+
+        .settings-option.active {
+            background: #e1f5fe;
+            border-left: 3px solid #0078d4;
+        }
+
+        .settings-main {
+            flex-grow: 1;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .settings-section {
+            margin-bottom: 30px;
+        }
+
+        .settings-section h3 {
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* 通知中心 */
+        .notification-center {
+            position: fixed;
+            bottom: 48px;
+            right: 10px;
+            width: 350px;
+            height: 500px;
+            background: rgba(42, 42, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 10px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 999;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            color: white;
+            transition: transform 0.3s, opacity 0.3s;
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        .notification-center.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-clear {
+            font-size: 12px;
+            color: #0078d4;
+            cursor: pointer;
+        }
+
+        .notification-content {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .notification-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .notification-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .notification-message {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .notification-time {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        /* 窗口激活状态 */
+        .window.active {
+            z-index: 101;
+        }
+
+        /* 多任务视图 */
+        .task-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 40px;
+            z-index: 2000;
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+
+        .task-view.show {
+            opacity: 1;
+        }
+
+        .task-view-window {
+            width: 300px;
+            height: 200px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .task-view-window:hover {
+            transform: scale(1.05);
+        }
+
+        .task-view-header {
+            padding: 10px;
+            background: #f3f3f3;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .task-view-content {
+            height: calc(100% - 40px);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 计算器应用 */
+        .calculator {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .calculator-display {
+            background: #1e1e1e;
+            color: white;
+            padding: 20px;
+            text-align: right;
+            font-size: 32px;
+            font-weight: 300;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            flex-grow: 1;
+            background: #e0e0e0;
+        }
+
+        .calc-btn {
+            background: white;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calc-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .calc-btn.operator {
+            background: #f1f1f1;
+        }
+
+        .calc-btn.equals {
+            background: #0078d4;
+            color: white;
+        }
+
+        .calc-btn.equals:hover {
+            background: #0067c0;
+        }
+
+        /* 画图应用 */
+        .paint-app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .paint-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            gap: 15px;
+            background: #f3f3f3;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .paint-tool {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 18px;
+            transition: background 0.2s;
+        }
+
+        .paint-tool:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .paint-tool.active {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 5px;
+        }
+
+        .color-option {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            transition: transform 0.2s;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border: 2px solid #000;
+            transform: scale(1.1);
+        }
+
+        .paint-canvas-container {
+            flex-grow: 1;
+            padding: 20px;
+            background: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .paint-canvas {
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            cursor: crosshair;
+        }
+
+        /* 右键菜单 */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 5px 0;
+            z-index: 3000;
+            display: none;
+            min-width: 180px;
+        }
+
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background: #f0f0f0;
+        }
+
+        .context-menu-item i {
+            width: 16px;
+            text-align: center;
+        }
+
+        /* 音量控制 */
+        .volume-control {
+            position: fixed;
+            bottom: 50px;
+            right: 10px;
+            width: 40px;
+            height: 120px;
+            background: rgba(42, 42, 42, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 5px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 0;
+            z-index: 999;
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+
+        .volume-control.show {
+            opacity: 1;
+        }
+
+        .volume-slider {
+            flex-grow: 1;
+            width: 20px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .volume-slider input {
+            width: 100px;
+            transform: rotate(-90deg);
+            transform-origin: center;
+        }
+
+        /* 文件详情面板 */
+        .file-details {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background: white;
+            border-left: 1px solid #e0e0e0;
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            z-index: 102;
+            transition: transform 0.3s;
+            transform: translateX(100%);
+        }
+
+        .file-details.show {
+            transform: translateX(0);
+        }
+
+        .file-details-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .file-details-icon {
+            font-size: 48px;
+            color: #4285f4;
+        }
+
+        .file-details-info {
+            flex-grow: 1;
+        }
+
+        .file-details-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .file-details-type {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .file-properties {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .file-property {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .property-name {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .property-value {
+            color: #333;
+        }
+
+        /* 窗口最小化动画 */
+        .window.minimizing {
+            animation: minimizeWindow 0.3s forwards;
+        }
+
+        @keyframes minimizeWindow {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.1);
+                opacity: 0;
+            }
+        }
+
+        /* 窗口恢复动画 */
+        .window.restoring {
+            animation: restoreWindow 0.3s forwards;
+        }
+
+        @keyframes restoreWindow {
+            0% {
+                transform: scale(0.1);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* 深色滚动条 */
+        .dark-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .dark-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="desktop" id="desktop">
+        <div class="desktop-icons">
+            <div class="desktop-icon" onclick="openWindow('file-explorer')">
+                <i class="fa-solid fa-folder"></i>
+                <span>文件资源管理器</span>
             </div>
-            <div class="invokeBox">
-                <button id="openUrl">open_url_browser</button>
-                <button id="openUrlNew">open_url_new</button>
-                <button id="runCommand">run_command</button>
-                <button id="downloadFile">download_file</button>
-                <button id="getExeDir">get_exe_dir</button>
-                <button id="getEnvVar">get_env_var</button>
-                <button id="findPort">find_port</button>
+            <div class="desktop-icon" onclick="openWindow('browser')">
+                <i class="fa-brands fa-edge"></i>
+                <span>Microsoft Edge</span>
             </div>
-        </main>
-    </body>
+            <div class="desktop-icon" onclick="openWindow('settings')">
+                <i class="fa-solid fa-gear"></i>
+                <span>设置</span>
+            </div>
+            <div class="desktop-icon" onclick="openWindow('calculator')">
+                <i class="fa-solid fa-calculator"></i>
+                <span>计算器</span>
+            </div>
+            <div class="desktop-icon" onclick="openWindow('paint')">
+                <i class="fa-solid fa-paintbrush"></i>
+                <span>画图</span>
+            </div>
+        </div>
+
+        <!-- 文件资源管理器窗口 -->
+        <div id="file-explorer" class="window">
+            <div class="window-header">
+                <div class="window-title">
+                    <i class="fa-solid fa-folder"></i>
+                    <span>文件资源管理器</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-control minimize" onclick="minimizeWindow('file-explorer')"><i class="fa-solid fa-minus"></i></div>
+                    <div class="window-control maximize" onclick="toggleMaximizeWindow('file-explorer')"><i class="fa-solid fa-square"></i></div>
+                    <div class="window-control close" onclick="closeWindow('file-explorer')"><i class="fa-solid fa-xmark"></i></div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="file-explorer">
+                    <div class="sidebar">
+                        <div class="sidebar-item active">
+                            <i class="fa-solid fa-house"></i>
+                            <span>主文件夹</span>
+                        </div>
+                        <div class="sidebar-item">
+                            <i class="fa-solid fa-desktop"></i>
+                            <span>桌面</span>
+                        </div>
+                        <div class="sidebar-item">
+                            <i class="fa-solid fa-download"></i>
+                            <span>下载</span>
+                        </div>
+                        <div class="sidebar-item">
+                            <i class="fa-solid fa-image"></i>
+                            <span>图片</span>
+                        </div>
+                        <div class="sidebar-item">
+                            <i class="fa-solid fa-music"></i>
+                            <span>音乐</span>
+                        </div>
+                        <div class="sidebar-item">
+                            <i class="fa-solid fa-film"></i>
+                            <span>视频</span>
+                        </div>
+                    </div>
+                    <div class="file-content">
+                        <div class="file-item" oncontextmenu="showContextMenu(event, 'file')" ondblclick="openFile('文档1.docx')">
+                            <i class="file-icon fa-solid fa-file-word"></i>
+                            <span class="file-name">文档1.docx</span>
+                        </div>
+                        <div class="file-item" oncontextmenu="showContextMenu(event, 'file')" ondblclick="openFile('表格数据.xlsx')">
+                            <i class="file-icon fa-solid fa-file-excel"></i>
+                            <span class="file-name">表格数据.xlsx</span>
+                        </div>
+                        <div class="file-item" oncontextmenu="showContextMenu(event, 'file')" ondblclick="openFile('演示文稿.pptx')">
+                            <i class="file-icon fa-solid fa-file-powerpoint"></i>
+                            <span class="file-name">演示文稿.pptx</span>
+                        </div>
+                        <div class="file-item" oncontextmenu="showContextMenu(event, 'file')" ondblclick="openFile('报告.pdf')">
+                            <i class="file-icon fa-solid fa-file-pdf"></i>
+                            <span class="file-name">报告.pdf</span>
+                        </div>
+                        <div class="file-item" oncontextmenu="showContextMenu(event, 'file')" ondblclick="openFile('图片1.jpg')">
+                            <i class="file-icon fa-solid fa-file-image"></i>
+                            <span class="file-name">图片1.jpg</span>
+                        </div>
+                        <div class="file-item" oncontextmenu="showContextMenu(event, 'file')" ondblclick="openFile('视频1.mp4')">
+                            <i class="file-icon fa-solid fa-file-video"></i>
+                            <span class="file-name">视频1.mp4</span>
+                        </div>
+                        <div class="file-item" oncontextmenu="showContextMenu(event, 'folder')" ondblclick="openFolder('项目文件夹')">
+                            <i class="file-icon fa-solid fa-folder"></i>
+                            <span class="file-name">项目文件夹</span>
+                        </div>
+                        <div class="file-item" oncontextmenu="showContextMenu(event, 'folder')" ondblclick="openFolder('工作资料')">
+                            <i class="file-icon fa-solid fa-folder"></i>
+                            <span class="file-name">工作资料</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 浏览器窗口 -->
+        <div id="browser" class="window">
+            <div class="window-header">
+                <div class="window-title">
+                    <i class="fa-brands fa-edge"></i>
+                    <span>Microsoft Edge</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-control minimize" onclick="minimizeWindow('browser')"><i class="fa-solid fa-minus"></i></div>
+                    <div class="window-control maximize" onclick="toggleMaximizeWindow('browser')"><i class="fa-solid fa-square"></i></div>
+                    <div class="window-control close" onclick="closeWindow('browser')"><i class="fa-solid fa-xmark"></i></div>
+                </div>
+            </div>
+            <div class="browser-content">
+                <div class="browser-toolbar">
+                    <i class="fa-solid fa-arrow-left" onclick="browserGoBack()"></i>
+                    <i class="fa-solid fa-arrow-right" onclick="browserGoForward()"></i>
+                    <i class="fa-solid fa-rotate-right" onclick="browserReload()"></i>
+                    <input type="text" class="browser-address" id="browser-address" value="https://www.microsoft.com/zh-cn/windows/windows-11" onkeypress="handleBrowserAddress(event)">
+                </div>
+                <div class="browser-view" id="browser-view">
+                    <h2>欢迎使用 Microsoft Edge</h2>
+                    <p>Windows 11 中的默认浏览器，为您提供快速、安全、现代化的浏览体验。</p>
+                    <p>探索新功能：</p>
+                    <ul>
+                        <li>垂直标签页 - 更好地管理多个标签</li>
+                        <li>集锦 - 轻松收集和组织网络内容</li>
+                        <li>沉浸式阅读器 - 专注于内容</li>
+                    </ul>
+                    <div style="margin-top: 20px;">
+                        <h3>尝试访问以下网站：</h3>
+                        <button onclick="browserNavigate('https://www.bing.com')">Bing 搜索</button>
+                        <button onclick="browserNavigate('https://www.github.com')">GitHub</button>
+                        <button onclick="browserNavigate('https://www.stackoverflow.com')">Stack Overflow</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设置窗口 -->
+        <div id="settings" class="window">
+            <div class="window-header">
+                <div class="window-title">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>设置</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-control minimize" onclick="minimizeWindow('settings')"><i class="fa-solid fa-minus"></i></div>
+                    <div class="window-control maximize" onclick="toggleMaximizeWindow('settings')"><i class="fa-solid fa-square"></i></div>
+                    <div class="window-control close" onclick="closeWindow('settings')"><i class="fa-solid fa-xmark"></i></div>
+                </div>
+            </div>
+            <div class="settings-content">
+                <div class="settings-sidebar">
+                    <div class="settings-option active" onclick="switchSettingsTab('system')">
+                        <i class="fa-solid fa-desktop"></i>
+                        <span>系统</span>
+                    </div>
+                    <div class="settings-option" onclick="switchSettingsTab('personalization')">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>个性化</span>
+                    </div>
+                    <div class="settings-option" onclick="switchSettingsTab('network')">
+                        <i class="fa-solid fa-wifi"></i>
+                        <span>网络和 Internet</span>
+                    </div>
+                    <div class="settings-option" onclick="switchSettingsTab('privacy')">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>隐私和安全性</span>
+                    </div>
+                    <div class="settings-option" onclick="switchSettingsTab('apps')">
+                        <i class="fa-solid fa-grid"></i>
+                        <span>应用</span>
+                    </div>
+                </div>
+                <div class="settings-main">
+                    <div class="settings-section" id="system-settings">
+                        <h3>显示</h3>
+                        <div class="setting-item">
+                            <span>缩放与布局</span>
+                            <span>100% (推荐)</span>
+                        </div>
+                        <div class="setting-item">
+                            <span>分辨率</span>
+                            <span>1920 x 1080</span>
+                        </div>
+                        <div class="setting-item">
+                            <span>夜间模式</span>
+                            <span>关</span>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>电源和电池</h3>
+                        <div class="setting-item">
+                            <span>电源模式</span>
+                            <span>最佳性能</span>
+                        </div>
+                        <div class="setting-item">
+                            <span>屏幕和睡眠</span>
+                            <span>15分钟 | 30分钟</span>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>存储</h3>
+                        <div class="setting-item">
+                            <span>本地磁盘 (C:)</span>
+                            <span>128 GB 可用，共 256 GB</span>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section" id="personalization-settings" style="display: none;">
+                        <h3>背景</h3>
+                        <div class="setting-item">
+                            <span>背景</span>
+                            <span>图片</span>
+                        </div>
+                        <div class="setting-item">
+                            <span>颜色</span>
+                            <span>Windows 颜色</span>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section" id="network-settings" style="display: none;">
+                        <h3>Wi-Fi</h3>
+                        <div class="setting-item">
+                            <span>Wi-Fi</span>
+                            <span>已连接</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 计算器窗口 -->
+        <div id="calculator" class="window">
+            <div class="window-header">
+                <div class="window-title">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span>计算器</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-control minimize" onclick="minimizeWindow('calculator')"><i class="fa-solid fa-minus"></i></div>
+                    <div class="window-control maximize" onclick="toggleMaximizeWindow('calculator')"><i class="fa-solid fa-square"></i></div>
+                    <div class="window-control close" onclick="closeWindow('calculator')"><i class="fa-solid fa-xmark"></i></div>
+                </div>
+            </div>
+            <div class="calculator">
+                <div class="calculator-display" id="calc-display">0</div>
+                <div class="calculator-buttons">
+                    <button class="calc-btn" onclick="clearCalculator()">C</button>
+                    <button class="calc-btn" onclick="appendToCalculator('±')">±</button>
+                    <button class="calc-btn" onclick="appendToCalculator('%')">%</button>
+                    <button class="calc-btn operator" onclick="appendToCalculator('/')">÷</button>
+                    
+                    <button class="calc-btn" onclick="appendToCalculator('7')">7</button>
+                    <button class="calc-btn" onclick="appendToCalculator('8')">8</button>
+                    <button class="calc-btn" onclick="appendToCalculator('9')">9</button>
+                    <button class="calc-btn operator" onclick="appendToCalculator('*')">×</button>
+                    
+                    <button class="calc-btn" onclick="appendToCalculator('4')">4</button>
+                    <button class="calc-btn" onclick="appendToCalculator('5')">5</button>
+                    <button class="calc-btn" onclick="appendToCalculator('6')">6</button>
+                    <button class="calc-btn operator" onclick="appendToCalculator('-')">-</button>
+                    
+                    <button class="calc-btn" onclick="appendToCalculator('1')">1</button>
+                    <button class="calc-btn" onclick="appendToCalculator('2')">2</button>
+                    <button class="calc-btn" onclick="appendToCalculator('3')">3</button>
+                    <button class="calc-btn operator" onclick="appendToCalculator('+')">+</button>
+                    
+                    <button class="calc-btn" onclick="appendToCalculator('0')" style="grid-column: span 2;">0</button>
+                    <button class="calc-btn" onclick="appendToCalculator('.')">.</button>
+                    <button class="calc-btn equals" onclick="calculateResult()">=</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 画图窗口 -->
+        <div id="paint" class="window">
+            <div class="window-header">
+                <div class="window-title">
+                    <i class="fa-solid fa-paintbrush"></i>
+                    <span>画图</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-control minimize" onclick="minimizeWindow('paint')"><i class="fa-solid fa-minus"></i></div>
+                    <div class="window-control maximize" onclick="toggleMaximizeWindow('paint')"><i class="fa-solid fa-square"></i></div>
+                    <div class="window-control close" onclick="closeWindow('paint')"><i class="fa-solid fa-xmark"></i></div>
+                </div>
+            </div>
+            <div class="paint-app">
+                <div class="paint-toolbar">
+                    <div class="paint-tool active" title="画笔" onclick="selectPaintTool('brush')">
+                        <i class="fa-solid fa-paintbrush"></i>
+                    </div>
+                    <div class="paint-tool" title="橡皮擦" onclick="selectPaintTool('eraser')">
+                        <i class="fa-solid fa-eraser"></i>
+                    </div>
+                    <div class="paint-tool" title="形状" onclick="selectPaintTool('shape')">
+                        <i class="fa-solid fa-shapes"></i>
+                    </div>
+                    <div class="paint-tool" title="文本" onclick="selectPaintTool('text')">
+                        <i class="fa-solid fa-font"></i>
+                    </div>
+                    <div class="color-picker">
+                        <div class="color-option selected" style="background-color: #000000;" data-color="#000000" onclick="selectColor('#000000')"></div>
+                        <div class="color-option" style="background-color: #ff0000;" data-color="#ff0000" onclick="selectColor('#ff0000')"></div>
+                        <div class="color-option" style="background-color: #00ff00;" data-color="#00ff00" onclick="selectColor('#00ff00')"></div>
+                        <div class="color-option" style="background-color: #0000ff;" data-color="#0000ff" onclick="selectColor('#0000ff')"></div>
+                        <div class="color-option" style="background-color: #ffff00;" data-color="#ffff00" onclick="selectColor('#ffff00')"></div>
+                    </div>
+                </div>
+                <div class="paint-canvas-container">
+                    <canvas id="paint-canvas" width="600" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 任务栏 -->
+    <div class="taskbar">
+        <div class="start-button" onclick="toggleStartMenu()">
+            <i class="fa-brands fa-windows"></i>
+        </div>
+        <div class="taskview-button" onclick="toggleTaskView()">
+            <i class="fa-solid fa-table-cells-large"></i>
+        </div>
+        <div class="taskbar-icons">
+            <div class="taskbar-icon active" onclick="toggleWindow('file-explorer')">
+                <i class="fa-solid fa-folder"></i>
+            </div>
+            <div class="taskbar-icon" onclick="toggleWindow('browser')">
+                <i class="fa-brands fa-edge"></i>
+            </div>
+            <div class="taskbar-icon" onclick="toggleWindow('settings')">
+                <i class="fa-solid fa-gear"></i>
+            </div>
+            <div class="taskbar-icon" onclick="toggleWindow('calculator')">
+                <i class="fa-solid fa-calculator"></i>
+            </div>
+            <div class="taskbar-icon" onclick="toggleWindow('paint')">
+                <i class="fa-solid fa-paintbrush"></i>
+            </div>
+        </div>
+        <div class="system-tray">
+            <i class="fa-solid fa-wifi"></i>
+            <i class="fa-solid fa-volume-high" onclick="toggleVolumeControl()"></i>
+            <i class="fa-regular fa-bell" onclick="toggleNotifications()"></i>
+            <div class="time" id="time">14:30</div>
+        </div>
+    </div>
+
+    <!-- 开始菜单 -->
+    <div class="start-menu" id="start-menu">
+        <div class="start-menu-header">
+            <h2>Windows 11</h2>
+            <input type="text" class="start-menu-search" placeholder="在此处输入以进行搜索" onkeyup="searchApps(this.value)">
+        </div>
+        <div class="start-menu-apps" id="start-menu-apps">
+            <div class="start-menu-app" onclick="openWindow('file-explorer')">
+                <i class="fa-solid fa-folder"></i>
+                <span>文件资源管理器</span>
+            </div>
+            <div class="start-menu-app" onclick="openWindow('browser')">
+                <i class="fa-brands fa-edge"></i>
+                <span>Microsoft Edge</span>
+            </div>
+            <div class="start-menu-app" onclick="openWindow('settings')">
+                <i class="fa-solid fa-gear"></i>
+                <span>设置</span>
+            </div>
+            <div class="start-menu-app" onclick="openWindow('calculator')">
+                <i class="fa-solid fa-calculator"></i>
+                <span>计算器</span>
+            </div>
+            <div class="start-menu-app" onclick="openWindow('paint')">
+                <i class="fa-solid fa-paintbrush"></i>
+                <span>画图</span>
+            </div>
+            <div class="start-menu-app">
+                <i class="fa-solid fa-camera"></i>
+                <span>相机</span>
+            </div>
+            <div class="start-menu-app">
+                <i class="fa-solid fa-music"></i>
+                <span>媒体播放器</span>
+            </div>
+            <div class="start-menu-app">
+                <i class="fa-solid fa-envelope"></i>
+                <span>邮件</span>
+            </div>
+            <div class="start-menu-app">
+                <i class="fa-solid fa-calendar"></i>
+                <span>日历</span>
+            </div>
+            <div class="start-menu-app">
+                <i class="fa-solid fa-photo-film"></i>
+                <span>照片</span>
+            </div>
+            <div class="start-menu-app">
+                <i class="fa-solid fa-people-group"></i>
+                <span>Teams</span>
+            </div>
+        </div>
+        <div class="start-menu-footer">
+            <div class="user-profile">
+                <img src="https://i.pravatar.cc/40" alt="用户头像">
+                <span>用户</span>
+            </div>
+            <div class="power-options">
+                <i class="fa-solid fa-power-off" title="关机"></i>
+                <i class="fa-solid fa-arrow-right-from-bracket" title="注销"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知中心 -->
+    <div class="notification-center" id="notification-center">
+        <div class="notification-header">
+            <span>通知</span>
+            <span class="notification-clear" onclick="clearNotifications()">清除所有</span>
+        </div>
+        <div class="notification-content dark-scrollbar" id="notification-content">
+            <div class="notification-item">
+                <div class="notification-title">系统更新</div>
+                <div class="notification-message">Windows 11 已准备就绪，可以安装最新更新。</div>
+                <div class="notification-time">刚刚</div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-title">安全扫描</div>
+                <div class="notification-message">Windows Defender 已完成扫描，未发现威胁。</div>
+                <div class="notification-time">10分钟前</div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-title">电池电量</div>
+                <div class="notification-message">电池电量低于 20%，建议连接电源适配器。</div>
+                <div class="notification-time">30分钟前</div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-title">Microsoft Edge</div>
+                <div class="notification-message">新版本可用，点击此处更新。</div>
+                <div class="notification-time">1小时前</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 多任务视图 -->
+    <div class="task-view" id="task-view">
+        <!-- 动态生成窗口预览 -->
+    </div>
+
+    <!-- 右键菜单 -->
+    <div class="context-menu" id="context-menu">
+        <div class="context-menu-item" onclick="showFileProperties()">
+            <i class="fa-solid fa-info-circle"></i>
+            <span>属性</span>
+        </div>
+        <div class="context-menu-item">
+            <i class="fa-solid fa-share"></i>
+            <span>共享</span>
+        </div>
+        <div class="context-menu-item">
+            <i class="fa-solid fa-copy"></i>
+            <span>复制</span>
+        </div>
+        <div class="context-menu-item">
+            <i class="fa-solid fa-scissors"></i>
+            <span>剪切</span>
+        </div>
+        <div class="context-menu-item">
+            <i class="fa-solid fa-trash"></i>
+            <span>删除</span>
+        </div>
+    </div>
+
+    <!-- 音量控制 -->
+    <div class="volume-control" id="volume-control">
+        <i class="fa-solid fa-volume-high"></i>
+        <div class="volume-slider">
+            <input type="range" min="0" max="100" value="80" orient="vertical" onchange="changeVolume(this.value)">
+        </div>
+        <i class="fa-solid fa-volume-off"></i>
+    </div>
+
+    <!-- 文件详情面板 -->
+    <div class="file-details" id="file-details">
+        <div class="file-details-header">
+            <i class="file-details-icon fa-solid fa-file"></i>
+            <div class="file-details-info">
+                <div class="file-details-name">文档.docx</div>
+                <div class="file-details-type">Microsoft Word 文档</div>
+            </div>
+        </div>
+        <div class="file-properties">
+            <div class="file-property">
+                <span class="property-name">类型</span>
+                <span class="property-value">DOCX 文件</span>
+            </div>
+            <div class="file-property">
+                <span class="property-name">大小</span>
+                <span class="property-value">245 KB</span>
+            </div>
+            <div class="file-property">
+                <span class="property-name">修改日期</span>
+                <span class="property-value">2023年10月15日 14:30</span>
+            </div>
+            <div class="file-property">
+                <span class="property-name">创建日期</span>
+                <span class="property-value">2023年10月10日 09:15</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 更新时间显示
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('time').textContent = timeString;
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 开始菜单切换
+        function toggleStartMenu() {
+            const startMenu = document.getElementById('start-menu');
+            const notificationCenter = document.getElementById('notification-center');
+            const volumeControl = document.getElementById('volume-control');
+            const taskView = document.getElementById('task-view');
+            
+            if (startMenu.classList.contains('show')) {
+                startMenu.classList.remove('show');
+                setTimeout(() => {
+                    startMenu.style.display = 'none';
+                }, 300);
+            } else {
+                startMenu.style.display = 'flex';
+                setTimeout(() => {
+                    startMenu.classList.add('show');
+                }, 10);
+                notificationCenter.classList.remove('show');
+                volumeControl.classList.remove('show');
+                taskView.classList.remove('show');
+            }
+        }
+
+        // 通知中心切换
+        function toggleNotifications() {
+            const notificationCenter = document.getElementById('notification-center');
+            const startMenu = document.getElementById('start-menu');
+            const volumeControl = document.getElementById('volume-control');
+            const taskView = document.getElementById('task-view');
+            
+            if (notificationCenter.classList.contains('show')) {
+                notificationCenter.classList.remove('show');
+                setTimeout(() => {
+                    notificationCenter.style.display = 'none';
+                }, 300);
+            } else {
+                notificationCenter.style.display = 'flex';
+                setTimeout(() => {
+                    notificationCenter.classList.add('show');
+                }, 10);
+                startMenu.classList.remove('show');
+                volumeControl.classList.remove('show');
+                taskView.classList.remove('show');
+            }
+        }
+
+        // 音量控制切换
+        function toggleVolumeControl() {
+            const volumeControl = document.getElementById('volume-control');
+            const startMenu = document.getElementById('start-menu');
+            const notificationCenter = document.getElementById('notification-center');
+            const taskView = document.getElementById('task-view');
+            
+            if (volumeControl.classList.contains('show')) {
+                volumeControl.classList.remove('show');
+                setTimeout(() => {
+                    volumeControl.style.display = 'none';
+                }, 300);
+            } else {
+                volumeControl.style.display = 'flex';
+                setTimeout(() => {
+                    volumeControl.classList.add('show');
+                }, 10);
+                startMenu.classList.remove('show');
+                notificationCenter.classList.remove('show');
+                taskView.classList.remove('show');
+            }
+        }
+
+        // 改变音量
+        function changeVolume(value) {
+            // 在实际应用中，这里会改变系统音量
+            console.log('音量设置为: ' + value);
+        }
+
+        // 清除通知
+        function clearNotifications() {
+            document.getElementById('notification-content').innerHTML = '<div class="notification-item">没有新通知</div>';
+        }
+
+        // 多任务视图切换
+        function toggleTaskView() {
+            const taskView = document.getElementById('task-view');
+            const startMenu = document.getElementById('start-menu');
+            const notificationCenter = document.getElementById('notification-center');
+            const volumeControl = document.getElementById('volume-control');
+            
+            if (taskView.classList.contains('show')) {
+                taskView.classList.remove('show');
+                setTimeout(() => {
+                    taskView.style.display = 'none';
+                }, 300);
+            } else {
+                taskView.style.display = 'flex';
+                setTimeout(() => {
+                    taskView.classList.add('show');
+                }, 10);
+                generateTaskViewPreviews();
+                startMenu.classList.remove('show');
+                notificationCenter.classList.remove('show');
+                volumeControl.classList.remove('show');
+            }
+        }
+
+        // 生成多任务视图预览
+        function generateTaskViewPreviews() {
+            const taskView = document.getElementById('task-view');
+            taskView.innerHTML = '';
+            
+            const windows = document.querySelectorAll('.window');
+            windows.forEach(window => {
+                if (window.style.display === 'flex') {
+                    const windowId = window.id;
+                    const windowTitle = window.querySelector('.window-title span').textContent;
+                    const windowIcon = window.querySelector('.window-title i').className;
+                    
+                    const preview = document.createElement('div');
+                    preview.className = 'task-view-window';
+                    preview.onclick = () => {
+                        setActiveWindow(windowId);
+                        taskView.classList.remove('show');
+                        setTimeout(() => {
+                            taskView.style.display = 'none';
+                        }, 300);
+                    };
+                    
+                    preview.innerHTML = `
+                        <div class="task-view-header">
+                            <i class="${windowIcon}"></i>
+                            <span>${windowTitle}</span>
+                        </div>
+                        <div class="task-view-content">
+                            ${windowTitle} 预览
+                        </div>
+                    `;
+                    
+                    taskView.appendChild(preview);
+                }
+            });
+        }
+
+        // 打开窗口
+        function openWindow(windowId) {
+            const window = document.getElementById(windowId);
+            window.style.display = 'flex';
+            window.classList.add('restoring');
+            
+            // 设置窗口为活动状态
+            setActiveWindow(windowId);
+            
+            // 更新任务栏图标状态
+            updateTaskbarIcons(windowId);
+            
+            // 关闭开始菜单
+            document.getElementById('start-menu').classList.remove('show');
+            setTimeout(() => {
+                document.getElementById('start-menu').style.display = 'none';
+            }, 300);
+            
+            // 初始化画布（如果是画图应用）
+            if (windowId === 'paint') {
+                initPaintCanvas();
+            }
+            
+            // 移除恢复动画类
+            setTimeout(() => {
+                window.classList.remove('restoring');
+            }, 300);
+        }
+
+        // 关闭窗口
+        function closeWindow(windowId) {
+            const window = document.getElementById(windowId);
+            window.style.display = 'none';
+            updateTaskbarIcons(windowId, true);
+        }
+
+        // 最小化窗口
+        function minimizeWindow(windowId) {
+            const window = document.getElementById(windowId);
+            window.classList.add('minimizing');
+            
+            setTimeout(() => {
+                window.style.display = 'none';
+                window.classList.remove('minimizing');
+                updateTaskbarIcons(windowId);
+            }, 300);
+        }
+
+        // 切换窗口最大化
+        function toggleMaximizeWindow(windowId) {
+            const window = document.getElementById(windowId);
+            window.classList.toggle('maximized');
+            
+            // 更新最大化按钮图标
+            const maximizeBtn = window.querySelector('.maximize i');
+            if (window.classList.contains('maximized')) {
+                maximizeBtn.className = 'fa-solid fa-window-restore';
+            } else {
+                maximizeBtn.className = 'fa-solid fa-square';
+            }
+        }
+
+        // 切换窗口显示/隐藏
+        function toggleWindow(windowId) {
+            const window = document.getElementById(windowId);
+            if (window.style.display === 'flex') {
+                minimizeWindow(windowId);
+            } else {
+                openWindow(windowId);
+            }
+        }
+
+        // 设置活动窗口
+        function setActiveWindow(windowId) {
+            // 移除所有窗口的active类
+            document.querySelectorAll('.window').forEach(w => {
+                w.classList.remove('active');
+            });
+            
+            // 为当前窗口添加active类
+            document.getElementById(windowId).classList.add('active');
+        }
+
+        // 更新任务栏图标状态
+        function updateTaskbarIcons(windowId, close = false) {
+            const taskbarIcons = document.querySelectorAll('.taskbar-icon');
+            
+            taskbarIcons.forEach(icon => {
+                if (icon.onclick && icon.onclick.toString().includes(windowId)) {
+                    if (close) {
+                        icon.classList.remove('active');
+                    } else {
+                        icon.classList.add('active');
+                    }
+                }
+            });
+        }
+
+        // 点击桌面时关闭开始菜单和通知中心
+        document.getElementById('desktop').addEventListener('click', function(e) {
+            if (e.target.closest('.desktop-icon')) return;
+            
+            document.getElementById('start-menu').classList.remove('show');
+            document.getElementById('notification-center').classList.remove('show');
+            document.getElementById('volume-control').classList.remove('show');
+            document.getElementById('context-menu').style.display = 'none';
+            
+            setTimeout(() => {
+                document.getElementById('start-menu').style.display = 'none';
+                document.getElementById('notification-center').style.display = 'none';
+                document.getElementById('volume-control').style.display = 'none';
+            }, 300);
+        });
+
+        // 窗口拖拽功能
+        let activeWindow = null;
+        let offsetX, offsetY;
+
+        document.querySelectorAll('.window-header').forEach(header => {
+            header.addEventListener('mousedown', function(e) {
+                if (this.parentElement.classList.contains('maximized')) return;
+                
+                activeWindow = this.parentElement;
+                offsetX = e.clientX - activeWindow.offsetLeft;
+                offsetY = e.clientY - activeWindow.offsetTop;
+                
+                // 设置窗口为活动状态
+                setActiveWindow(activeWindow.id);
+            });
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (activeWindow) {
+                activeWindow.style.left = (e.clientX - offsetX) + 'px';
+                activeWindow.style.top = (e.clientY - offsetY) + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            activeWindow = null;
+        });
+
+        // 右键菜单
+        function showContextMenu(event, type) {
+            event.preventDefault();
+            const contextMenu = document.getElementById('context-menu');
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = event.clientX + 'px';
+            contextMenu.style.top = event.clientY + 'px';
+            
+            // 点击其他地方关闭右键菜单
+            document.addEventListener('click', function closeContextMenu() {
+                contextMenu.style.display = 'none';
+                document.removeEventListener('click', closeContextMenu);
+            });
+        }
+
+        // 显示文件属性
+        function showFileProperties() {
+            const fileDetails = document.getElementById('file-details');
+            fileDetails.style.display = 'flex';
+            setTimeout(() => {
+                fileDetails.classList.add('show');
+            }, 10);
+        }
+
+        // 打开文件
+        function openFile(filename) {
+            // 在实际应用中，这里会根据文件类型打开相应的应用
+            alert(`正在打开文件: ${filename}`);
+        }
+
+        // 打开文件夹
+        function openFolder(foldername) {
+            // 在实际应用中，这里会打开文件夹
+            alert(`正在打开文件夹: ${foldername}`);
+        }
+
+        // 计算器功能
+        let calculatorValue = '0';
+        let previousValue = '0';
+        let operation = null;
+
+        function updateCalculatorDisplay() {
+            document.getElementById('calc-display').textContent = calculatorValue;
+        }
+
+        function appendToCalculator(input) {
+            if (calculatorValue === '0' || calculatorValue === '错误') {
+                calculatorValue = input;
+            } else {
+                calculatorValue += input;
+            }
+            updateCalculatorDisplay();
+        }
+
+        function clearCalculator() {
+            calculatorValue = '0';
+            previousValue = '0';
+            operation = null;
+            updateCalculatorDisplay();
+        }
+
+        function calculateResult() {
+            try {
+                // 替换显示的操作符为JavaScript可识别的操作符
+                let expression = calculatorValue.replace(/×/g, '*').replace(/÷/g, '/');
+                calculatorValue = eval(expression).toString();
+            } catch (e) {
+                calculatorValue = '错误';
+            }
+            updateCalculatorDisplay();
+        }
+
+        // 画图功能
+        let currentPaintTool = 'brush';
+        let currentColor = '#000000';
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let ctx = null;
+
+        function initPaintCanvas() {
+            const canvas = document.getElementById('paint-canvas');
+            ctx = canvas.getContext('2d');
+            isDrawing = false;
+            lastX = 0;
+            lastY = 0;
+
+            // 设置画布背景为白色
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 鼠标事件监听
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+        }
+
+        function selectPaintTool(tool) {
+            currentPaintTool = tool;
+            
+            // 更新工具按钮状态
+            document.querySelectorAll('.paint-tool').forEach(t => {
+                t.classList.remove('active');
+            });
+            event.target.closest('.paint-tool').classList.add('active');
+        }
+
+        function selectColor(color) {
+            currentColor = color;
+            
+            // 更新颜色选择状态
+            document.querySelectorAll('.color-option').forEach(c => {
+                c.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            
+            if (currentPaintTool === 'brush') {
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            } else if (currentPaintTool === 'eraser') {
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 20;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            }
+            
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        // 浏览器功能
+        let browserHistory = ['https://www.microsoft.com/zh-cn/windows/windows-11'];
+        let currentHistoryIndex = 0;
+
+        function browserNavigate(url) {
+            document.getElementById('browser-address').value = url;
+            browserHistory.push(url);
+            currentHistoryIndex = browserHistory.length - 1;
+            
+            // 在实际应用中，这里会加载网页内容
+            document.getElementById('browser-view').innerHTML = `
+                <h2>正在加载 ${url}</h2>
+                <p>这是一个模拟的浏览器，实际应用中会加载真实网页内容。</p>
+            `;
+        }
+
+        function browserGoBack() {
+            if (currentHistoryIndex > 0) {
+                currentHistoryIndex--;
+                document.getElementById('browser-address').value = browserHistory[currentHistoryIndex];
+                
+                // 在实际应用中，这里会加载网页内容
+                document.getElementById('browser-view').innerHTML = `
+                    <h2>正在加载 ${browserHistory[currentHistoryIndex]}</h2>
+                    <p>这是一个模拟的浏览器，实际应用中会加载真实网页内容。</p>
+                `;
+            }
+        }
+
+        function browserGoForward() {
+            if (currentHistoryIndex < browserHistory.length - 1) {
+                currentHistoryIndex++;
+                document.getElementById('browser-address').value = browserHistory[currentHistoryIndex];
+                
+                // 在实际应用中，这里会加载网页内容
+                document.getElementById('browser-view').innerHTML = `
+                    <h2>正在加载 ${browserHistory[currentHistoryIndex]}</h2>
+                    <p>这是一个模拟的浏览器，实际应用中会加载真实网页内容。</p>
+                `;
+            }
+        }
+
+        function browserReload() {
+            // 在实际应用中，这里会重新加载网页
+            document.getElementById('browser-view').innerHTML = `
+                <h2>正在重新加载页面</h2>
+                <p>这是一个模拟的浏览器，实际应用中会重新加载网页内容。</p>
+            `;
+        }
+
+        function handleBrowserAddress(e) {
+            if (e.key === 'Enter') {
+                const url = document.getElementById('browser-address').value;
+                browserNavigate(url);
+            }
+        }
+
+        // 设置应用功能
+        function switchSettingsTab(tab) {
+            // 更新侧边栏选项状态
+            document.querySelectorAll('.settings-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            event.target.closest('.settings-option').classList.add('active');
+            
+            // 显示对应的设置内容
+            document.querySelectorAll('.settings-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            if (tab === 'system') {
+                document.getElementById('system-settings').style.display = 'block';
+            } else if (tab === 'personalization') {
+                document.getElementById('personalization-settings').style.display = 'block';
+            } else if (tab === 'network') {
+                document.getElementById('network-settings').style.display = 'block';
+            }
+        }
+
+        // 开始菜单搜索功能
+        function searchApps(query) {
+            const apps = document.querySelectorAll('.start-menu-app');
+            apps.forEach(app => {
+                const appName = app.querySelector('span').textContent.toLowerCase();
+                if (appName.includes(query.toLowerCase())) {
+                    app.style.display = 'flex';
+                } else {
+                    app.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
 </html>
